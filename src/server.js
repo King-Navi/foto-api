@@ -6,19 +6,17 @@ const cors = require("cors");
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use("/uploads", express.static("uploads")); //Servir imagenes estaticamente
+app.use("/uploads", express.static("uploads")); // Servir imágenes estáticamente
 
-/*Conexion a mondoBD*/
+/* Conexión a MongoDB */
 mongoose
-    .connect(process.env.MONGO_URI, {
-        userNewUrlParser: true,
-        userUnifiedTopology: true
-    })
+    .connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB conectado"))
-    .catch((err)=> console.error("Error de conexión ", err));
+    .catch((err) => console.error("Error de conexión", err));
 
-//Importar rutas
+// Importar rutas
 const photoRoutes = require("./routes/photoRoutes");
 app.use("/api/photos", photoRoutes);
+
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, ()=> console.log('Servidor corriendo en el puerto ${PORT}'));
+app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
