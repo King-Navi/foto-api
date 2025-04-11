@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  # --- MONGODB ---
+  mongo:
+    image: mongo:latest
+    container_name: fotoapi_mongo
+    # Puertos expuestos en el host. Ajusta según necesidad.
+    ports:
+      - "27017:27017"
+    # Variables de entorno para inicialización de Mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    volumes:
+      - mongo-data:/data/db
+
+  # --- SERVIDOR / BACKEND ---
+  server:
+    build: 
+      context: ./servidor
+      dockerfile: Dockerfile
+    container_name: fotoapi_server
+    # El backend escuchará en el puerto 3000 dentro del contenedor,
+    # y se expondrá en el puerto 3000 del host.
+    ports:
+      - "5000:3000"
+    # Monta el .env para que tus variables de entorno estén disponibles
+    env_file:
+      - ./servidor/.env
+    depends_on:
+      - mongo
+    # Montamos la carpeta uploads para persistir las imágenes afuera del contenedor
+    volumes:
+      - ./servidor/uploads:/app/uploads
+
+  # --- CLIENTE / FRONTEND ---
+  client:
+    build:
+      context: ./cliente
+      dockerfile: Dockerfile
+    container_name: fotoapi_client
+    # Aquí se asume que sirves tu frontend en el puerto 80 (Nginx) o 3000 (con 'serve').
+    # Ajusta según tu Dockerfile del cliente.
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+
+volumes:
+  mongo-data:
